@@ -1,0 +1,17 @@
+FROM python:3.9-buster
+
+WORKDIR /app
+
+# Install necessary dependencies including wget, gcc, and libpq-dev
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends wget gcc libpq-dev && \
+    pip install pandas psycopg2 sqlalchemy requests
+
+# Copy the ingest_data.py script into the container
+COPY ingest_data.py /app/ingest_data.py
+
+# Copy the yellow_tripdata CSV file into the container
+COPY yellow_tripdata_2021-01.csv.gz /app/yellow_tripdata_2021-01.csv.gz
+
+# Set the entry point to run the script
+ENTRYPOINT ["python", "ingest_data.py"]

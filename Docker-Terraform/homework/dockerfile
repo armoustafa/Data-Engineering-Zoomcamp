@@ -1,0 +1,8 @@
+# Use the Python 3.12.8 image
+FROM python:3.12.8
+
+# Set the entrypoint to bash
+ENTRYPOINT ["bash", "-c"]
+
+# Run the command to check pip version
+CMD ["pip --version"]
