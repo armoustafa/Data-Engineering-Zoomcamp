@@ -112,7 +112,7 @@ You will also need the dataset with zones:
 wget https://github.com/DataTalksClub/nyc-tlc-data/releases/download/misc/taxi_zone_lookup.csv
 ```
 
-After downloading the data files into the same directory, we use the following notebook to ingest the data into the PostgreSQL database. Once the data is successfully loaded, we can utilize pgAdmin to connect to the database and query the data as needed.
+After downloading the data files into the same directory, we use the following [notebook](ingest_data.ipynb) to ingest the data into the PostgreSQL database. Once the data is successfully loaded, we can utilize pgAdmin to connect to the database and query the data as needed.
 
 ---
 
