@@ -1,0 +1,48 @@
+id: taxi-data
+namespace: ata
+
+description:
+  "Automated download and upload of all six months of taxi data"
+
+variables:
+  months: ["01", "02", "03", "04", "05", "06"]
+  taxi: "yellow"
+  year: "2024"
+
+tasks:
+  - id: set_label
+    type: io.kestra.plugin.core.execution.Labels
+    labels:
+      taxi: "{{vars.taxi}}"
+      year: "{{vars.year}}"
+
+  - id: extract_and_upload
+    type: io.kestra.plugin.core.flow.Parallel
+    tasks:
+      - id: process_month
+        type: io.kestra.plugin.scripts.shell.Commands
+        outputFiles:
+          - "*.parquet"
+        taskRunner:
+          type: io.kestra.plugin.core.runner.Process
+        commands:
+          - wget https://d37ci6vzurychx.cloudfront.net/trip-data/{{vars.taxi}}_tripdata_{{vars.year}}-{{each.value}}.parquet
+        each:
+          - vars.months
+
+  - id: upload_to_gcs
+    type: io.kestra.plugin.gcp.gcs.Upload
+    from: "{{outputs.extract_and_upload.outputFiles[vars.taxi ~ '_tripdata_' ~ vars.year ~ '-' ~ each.value ~ '.parquet']}}"
+    to: "gs://ata_clean/{{vars.taxi}}_tripdata_{{vars.year}}-{{each.value}}.parquet"
+    each:
+      - vars.months
+
+  - id: purge_files
+    type: io.kestra.plugin.core.storage.PurgeCurrentExecutionFiles
+    description: If you'd like to explore Kestra outputs, disable it.
+    disabled: false
+
+pluginDefaults:
+  - type: io.kestra.plugin.gcp
+    values:
+      serviceAccount: "{{kv('GCP_CREDS')}}"
